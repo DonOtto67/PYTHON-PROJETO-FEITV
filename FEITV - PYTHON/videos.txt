@@ -1,0 +1,11 @@
+1;The Walking Dead;Série;Terror;Zumbis após apocalipse;2010
+2;La Casa de Papel;Série;Crime;Assalto a banco na Espanha;2017
+3;Suits;Série;Drama;Advogados e manipulações;2001
+4;Supernatural;Série;Fantasia;Caça a criaturas sobrenaturais;2005
+5;Vingadores: Ultimato;Filme;Ação;Batalha final dos heróis;2019
+6;Vingadores: Guerra Infinita;Filme;Ação;Heróis enfrentam Thanos;2018
+7;Homem-Aranha: De Volta ao Lar;Filme;Ação;Aranha descobre seu potencial;2017
+8;Homem-Aranha: Sem Volta Para Casa;Filme;Ação;Multiverso e consequências;2021
+9;Breaking Bad;Serie;Drama;Professor vira traficante;2008
+10;Vingadores;Filme;Acao;Herois salvam o mundo;2012
+11;Dark;Serie;Ficcao;Viagem no tempo;2017
