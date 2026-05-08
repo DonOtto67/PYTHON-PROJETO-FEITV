@@ -4,6 +4,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 arquivo_usuarios = os.path.join(BASE_DIR, "usuarios.txt")
 arquivo_curtidas = os.path.join(BASE_DIR, "curtidas.txt")
+arquivo_favoritos = os.path.join(BASE_DIR, "favoritos.txt")  # Novo arquivo para favoritos
 arquivo_videos = os.path.join(BASE_DIR, "videos.txt")
 
 
@@ -14,6 +15,10 @@ def comecar():
 
     if not os.path.exists(arquivo_curtidas):
         with open(arquivo_curtidas, "w", encoding="utf-8") as f:
+            pass
+
+    if not os.path.exists(arquivo_favoritos):  # Cria o arquivo de favoritos
+        with open(arquivo_favoritos, "w", encoding="utf-8") as f:
             pass
 
     if not os.path.exists(arquivo_videos):
@@ -173,6 +178,34 @@ def buscar_video(usuario):
         curtir_video(usuario, curtir)
 
 
+def descurtir_video(usuario, id_video):
+    id_video = int(id_video)  # Garantir que é um inteiro
+    curtidos = []
+
+    with open(arquivo_curtidas, "r", encoding="utf-8") as f:
+        for linha in f:
+            if linha.startswith(f"{usuario['id']};"):
+                partes = linha.strip().split(";")
+                id_video_str = partes[1].strip()
+                if id_video_str.isdigit():
+                    curtidos.append(int(id_video_str))
+
+    if id_video not in curtidos:
+        print("Você não curtiu nenhum vídeo com este ID.")
+    else:
+        linhas_restantes = []
+
+        with open(arquivo_curtidas, "r", encoding="utf-8") as f:
+            for linha in f:
+                if linha.strip() != f"{usuario['id']};{id_video}":
+                    linhas_restantes.append(linha)
+
+        with open(arquivo_curtidas, "w", encoding="utf-8") as f:
+            f.writelines(linhas_restantes)
+
+        print("Curtida removida com sucesso!")
+
+
 def ver_curtidos(usuario):
     curtidos = []
 
@@ -180,9 +213,7 @@ def ver_curtidos(usuario):
         for linha in f:
             if linha.startswith(f"{usuario['id']};"):
                 partes = linha.strip().split(";")
-
                 id_video_str = partes[1].strip()
-
                 if id_video_str.isdigit():
                     curtidos.append(int(id_video_str))
 
@@ -204,6 +235,159 @@ def ver_curtidos(usuario):
             print(f"Ano: {v['ano']}")
             print("-" * 30)
 
+    while True:
+        descurtir = input(
+            "Você quer descurtir algum vídeo? Digite o ID do vídeo (ou deixe em branco para voltar): "
+        ).strip()
+
+        if descurtir == "":
+            break
+
+        if not descurtir.isdigit():
+            print("ID inválido! Tente novamente.")
+            continue
+
+        descurtir_video(usuario, descurtir)
+
+
+def favoritar_video(usuario):
+    videos = carregar_videos()
+
+    print("\n--- Lista de vídeos disponíveis para favoritar ---")
+    for v in videos:
+        print(f"ID: {v['id']}")
+        print(f"Título: {v['titulo']}")
+        print(f"Tipo: {v['tipo']}")
+        print(f"Gênero: {v['genero']}")
+        print(f"Descrição: {v['descricao']}")
+        print(f"Ano: {v['ano']}")
+        print("-" * 30)
+
+    id_video = input(
+        "Digite o ID do vídeo que você deseja favoritar (ou deixe em branco para voltar): "
+    ).strip()
+
+    if id_video == "":
+        return
+
+    if not id_video.isdigit():
+        print("ID inválido! Tente novamente.")
+        return
+
+    # Garantir que o ID é inteiro
+    id_video = int(id_video)
+
+    # Verificar se já está favoritado
+    with open(arquivo_favoritos, "r", encoding="utf-8") as f:
+        for linha in f:
+            if linha.strip() == f"{usuario['id']};{id_video}":
+                print("Você já favoritou este vídeo!")
+                return
+
+        # Adicionar ao arquivo de favoritos
+    with open(arquivo_favoritos, "a", encoding="utf-8") as f:
+        f.write(f"{usuario['id']};{id_video}\n")
+
+    print("Vídeo favoritado com sucesso!")
+
+
+def desfavoritar_video(usuario, id_video):
+    id_video = int(id_video)  # Garantir que é um inteiro
+    favoritos = []
+
+    # Carregar todos os favoritos do usuário
+    with open(arquivo_favoritos, "r", encoding="utf-8") as f:
+        for linha in f:
+            if linha.startswith(f"{usuario['id']};"):
+                partes = linha.strip().split(";")
+                id_video_str = partes[1].strip()
+                if id_video_str.isdigit():
+                    favoritos.append(int(id_video_str))
+
+    if id_video not in favoritos:
+        print("Você não favoritou nenhum vídeo com este ID.")
+    else:
+        linhas_restantes = []
+
+        # Reescrever o arquivo sem o vídeo que o usuário quer desfavoritar
+        with open(arquivo_favoritos, "r", encoding="utf-8") as f:
+            for linha in f:
+                if linha.strip() != f"{usuario['id']};{id_video}":
+                    linhas_restantes.append(linha)
+
+        with open(arquivo_favoritos, "w", encoding="utf-8") as f:
+            f.writelines(linhas_restantes)
+
+        print("Favorito removido com sucesso!")
+
+
+def menu_favoritos(usuario):
+    while True:
+        print("\n----- FAVORITOS -----")
+        print("1 - Favoritar um vídeo")
+        print("2 - Ver favoritos")
+        print("3 - Excluir favorito")
+        print("4 - Voltar ao menu de vídeos")
+
+        opcao = input("Escolha uma opção: ").strip()
+
+        if opcao == "1":
+            # Favoritar um vídeo
+            favoritar_video(usuario)
+
+        elif opcao == "2":
+            # Ver favoritos
+            ver_favoritos(usuario)
+
+        elif opcao == "3":
+            id_video = input(
+                "Digite o ID do vídeo que você quer desfavoritar (ou deixe em branco para voltar): "
+            ).strip()
+
+            if id_video:
+                if not id_video.isdigit():
+                    print("ID inválido! Tente novamente.")
+                    continue
+
+                # Chamar a função de desfavoritar
+                desfavoritar_video(usuario, id_video)
+
+        elif opcao == "4":
+            break
+
+        else:
+            print("Opção inválida!")
+
+
+def ver_favoritos(usuario):
+    favoritos = []
+
+    with open(arquivo_favoritos, "r", encoding="utf-8") as f:
+        for linha in f:
+            if linha.startswith(f"{usuario['id']};"):
+                partes = linha.strip().split(";")
+                id_video_str = partes[1].strip()
+                if id_video_str.isdigit():
+                    favoritos.append(int(id_video_str))
+
+    if not favoritos:
+        print("Nenhum vídeo favoritado ainda.")
+        return
+
+    videos = carregar_videos()
+
+    print("\n--- Seus vídeos favoritados ---")
+
+    for v in videos:
+        if v["id"] in favoritos:
+            print(f"ID: {v['id']}")
+            print(f"Título: {v['titulo']}")
+            print(f"Tipo: {v['tipo']}")
+            print(f"Gênero: {v['genero']}")
+            print(f"Descrição: {v['descricao']}")
+            print(f"Ano: {v['ano']}")
+            print("-" * 30)
+
 
 def menu_videos(usuario):
     while True:
@@ -211,7 +395,8 @@ def menu_videos(usuario):
         print("1 - Ver vídeos disponíveis")
         print("2 - Pesquisar vídeo")
         print("3 - Ver vídeos curtidos")
-        print("4 - Logout")
+        print("4 - Favoritos")
+        print("5 - Logout")
 
         opcao = input("Escolha uma opção: ").strip()
 
@@ -225,6 +410,9 @@ def menu_videos(usuario):
             ver_curtidos(usuario)
 
         elif opcao == "4":
+            menu_favoritos(usuario)
+
+        elif opcao == "5":
             print("Fazendo logout...")
             break
 
