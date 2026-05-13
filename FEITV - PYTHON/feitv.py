@@ -340,6 +340,7 @@ def menu_favoritos(usuario):
             ver_favoritos(usuario)
 
         elif opcao == "3":
+            ver_favoritos(usuario)
             id_video = input(
                 "Digite o ID do vídeo que você quer desfavoritar (ou deixe em branco para voltar): "
             ).strip()
